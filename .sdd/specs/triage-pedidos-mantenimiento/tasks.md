@@ -211,7 +211,7 @@
   - _Requirements: 3.7, 11.3, 11.4_
 
 - [ ] 9. Integración final y verificación
-- [ ] 9.1 Verificar de punta a punta los flujos principales
+- [x] 9.1 Verificar de punta a punta los flujos principales
   - Probar el recorrido completo: registrar por formulario, verlo en la bandeja con su prioridad, abrir el detalle, corregirlo y ver la marca y el historial
   - Probar el recorrido con la IA no disponible: respaldo, "Requiere revisión" y justificación con el aviso de respaldo
   - Probar el recorrido con ambos evaluadores fallando: el pedido queda registrado sin clasificar y visible en la bandeja
