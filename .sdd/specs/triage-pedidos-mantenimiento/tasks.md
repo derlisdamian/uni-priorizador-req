@@ -96,7 +96,7 @@
   - Testear el acierto, el fallo y que se invalide cuando cambia el modelo o el prompt
   - _Requirements: 11.4_
 
-- [ ] 5. Orquestar el triage con reintento, respaldo y revisión
+- [x] 5. Orquestar el triage con reintento, respaldo y revisión
   - Anonimizar los correos y teléfonos del texto antes de construir la entrada del evaluador
   - Ejecutar la evaluación principal, con un único reintento ante cualquier falla excepto la falta de configuración, que pasa directo al respaldo
   - Recurrir al evaluador de respaldo y, si tampoco clasifica, producir un resultado sin clasificación y sin prioridad
