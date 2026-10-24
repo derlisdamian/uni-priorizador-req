@@ -4,17 +4,20 @@
 - **Feature**: `triage-pedidos-mantenimiento`
 - **Alcance del descubrimiento**: Funcionalidad nueva (greenfield) con integración externa (Google Gemini) → descubrimiento completo.
 - **Hallazgos clave**:
-  - La salida estructurada de Gemini se pide con la Interactions API (`client.interactions.create(..., response_format={"type": "text", "mime_type": "application/json", "schema": ...})`) y se valida del lado del cliente con `Modelo.model_validate_json(interaction.output_text)`. Gemini hace cumplir `enum`, `minimum`/`maximum` y `minItems`/`maxItems`, pero descarta en silencio `minLength`/`maxLength` y otras restricciones. Los schemas con mucha ramificación se rechazan con `400 INVALID_ARGUMENT`.
-  - La Interactions API **guarda las solicitudes del lado del servidor por defecto** (1 día en el nivel gratuito, 55 días en el pago). Para cumplir el requisito 12.1 y la política de privacidad del steering se envía `store=False` y no se incluyen los datos de contacto en la entrada.
+  - **Decisión del equipo**: las llamadas a Gemini usan el endpoint REST `POST v1beta/models/{modelo}:generateContent`, con el header `X-goog-api-key` y el cuerpo `contents[].parts[].text`. No se usa la Interactions API. La salida estructurada se pide con `generationConfig.responseMimeType = "application/json"` y `responseJsonSchema`, y se valida del lado del cliente con `Modelo.model_validate_json(candidates[0].content.parts[0].text)`. Gemini hace cumplir `enum`, `minimum`/`maximum` y `minItems`/`maxItems`, pero descarta en silencio `minLength`/`maxLength` y otras restricciones. Los schemas con mucha ramificación se rechazan con `400 INVALID_ARGUMENT`.
+  - Que `generateContent` no tenga estado evita el almacenamiento conversacional por defecto que tiene la Interactions API (1 día en el nivel gratuito, 55 días en el pago). Como el nivel gratuito puede usar los datos para mejorar los productos, igual se excluyen los contactos y se anonimiza el texto (requisito 12.1).
   - Google ya no publica un límite fijo de RPM para el nivel gratuito. Los límites dependen del proyecto, y desde abril de 2026 se redujeron entre un 50 % y un 80 %. Por eso la demo no puede depender de la API: hacen falta el caché versionado del dataset y el respaldo por palabras clave.
 
 ## Registro de Investigación
 
-### Salida estructurada con `google-genai` (Interactions API)
-- **Contexto**: los requisitos 3.1 a 3.5 y 3.8 exigen una respuesta tipada y validada, y el steering define el SDK `google-genai` ≥ 1.55 con la Interactions API.
-- **Fuentes consultadas**: documentación de salida estructurada de Gemini, documentación del SDK `python-genai` y documentación de la Interactions API (ver Referencias).
+### Salida estructurada con Gemini: `generateContent` frente a la Interactions API
+- **Contexto**: los requisitos 3.1 a 3.5 y 3.8 exigen una respuesta tipada y validada. El steering mencionaba la Interactions API, pero el equipo definió (2026-10-23) que las llamadas usen la estructura REST `generateContent`.
+- **Fuentes consultadas**: documentación de salida estructurada de Gemini, la referencia REST de `generateContent`, documentación del SDK `python-genai` y documentación de la Interactions API (ver Referencias).
 - **Hallazgos**:
-  - El patrón documentado es `response_format` con `schema = Modelo.model_json_schema()`, más `model_validate_json` sobre `output_text`.
+  - En `generateContent`, el cuerpo es `{systemInstruction, contents: [{parts: [{text}]}], generationConfig: {temperature, responseMimeType, responseJsonSchema}}`.
+  - La respuesta llega en `candidates[].content.parts[].text`, con `finishReason` (`STOP`, `MAX_TOKENS`, `SAFETY`, …) y `promptFeedback.blockReason`.
+  - La API key puede ir como `?key=` o en el header `X-goog-api-key`; el equipo eligió el header.
+  - El SDK `google-genai` (`client.models.generate_content`) emite esta misma request.
   - Se hacen cumplir `enum`, `minimum`, `maximum`, `minItems` y `maxItems`. Se ignoran `minLength`, `maxLength`, `uniqueItems` y `minProperties`.
   - Producen `400 INVALID_ARGUMENT` los schemas con `maxItems` grandes en arreglos anidados, los enums largos, las secuencias largas de propiedades opcionales y los `anyOf` con muchas alternativas.
   - `system_instruction` y `generation_config` (temperatura) se pasan en cada interacción.
@@ -28,9 +31,9 @@
 
 ### Almacenamiento del lado del servidor y privacidad
 - **Contexto**: requisitos 12.1 y 12.2.
-- **Hallazgos**: con `store=False` la interacción no se guarda. No usamos el estado conversacional (`previous_interaction_id`) porque cada pedido es una consulta independiente.
+- **Hallazgos**: `generateContent` no tiene estado, y cada pedido es una request independiente con un único elemento en `contents`. No existe un parámetro `store` que configurar.
 - **Implicancias**:
-  - El adaptador Gemini envía siempre `store=False`.
+  - El adaptador nunca envía historial, y la API key va en el header para que no quede en las URLs registradas en los logs.
   - `EntradaEvaluacion` no tiene campo de contacto, lo que garantiza estructuralmente la exclusión del requisito 12.1.
   - El texto libre se anonimiza con un mejor esfuerzo: los correos y teléfonos se reemplazan con expresiones regulares antes de enviarse.
 
@@ -110,6 +113,15 @@
 - **Fundamento**: inventar una prioridad sería engañoso. Ubicarlo antes que los P1 contradiría el requisito 7.2.
 - **Seguimiento**: confirmar con el equipo si se prefiere que aparezcan al principio.
 
+### Decisión: contrato REST `generateContent` para Gemini
+- **Contexto**: indicación explícita del equipo sobre la estructura de las llamadas.
+- **Alternativas consideradas**:
+  1. Interactions API (`client.interactions.create`), que se mencionaba en el steering.
+  2. REST `generateContent` con `contents[].parts[].text` y el header `X-goog-api-key`.
+- **Enfoque seleccionado**: opción 2. Se implementa con `client.models.generate_content` del SDK, que emite la misma request, y se verifica el cuerpo en los tests.
+- **Fundamento**: es el contrato pedido por el equipo; no tiene estado ni almacenamiento conversacional, y es fácil de reproducir con curl en la demo.
+- **Seguimiento**: actualizar `tech.md` en el steering, que todavía menciona la Interactions API.
+
 ## Riesgos y Mitigaciones
 - **La IA devuelve evidencia parafraseada en lugar de literal.** Mitigación: se compara con normalización (minúsculas, sin acentos, espacios colapsados). Los fragmentos que no aparecen se descartan. Solo se invalida el resultado si un criterio con puntaje ≥ 2 queda sin ninguna evidencia, lo que dispara el reintento.
 - **Límites de cuota (429) durante la demo.** Mitigación: caché versionado del dataset, respaldo por palabras clave y cambio a `gemini-3.5-flash-lite` modificando solo `GEMINI_MODEL`.
@@ -126,7 +138,8 @@
 
 ## Referencias
 - [Gemini API — Structured outputs](https://ai.google.dev/gemini-api/docs/structured-output): patrón `response_format` y restricciones de schema soportadas.
-- [Gemini API — Interactions](https://ai.google.dev/gemini-api/docs/interactions): `store=False`, retención y parámetros por interacción.
+- [Gemini API — generateContent](https://ai.google.dev/api/generate-content): campos REST de request y response (contrato elegido).
+- [Gemini API — Interactions](https://ai.google.dev/gemini-api/docs/interactions): alternativa descartada; almacena las solicitudes por defecto.
 - [python-genai SDK](https://googleapis.github.io/python-genai/): `HttpOptions` y `errors.APIError`.
 - [Gemini API pricing 2026](https://geotoolbox.ai/blog/gemini-api-pricing): cambios de cuota del nivel gratuito (abril de 2026).
 - [Agentdeals — cambios de precios de Gemini](https://agentdeals.dev/gemini-api-pricing-changes): recortes de límites del nivel gratuito.

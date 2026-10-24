@@ -1,6 +1,6 @@
 # Stack Tecnológico
 
-> MVP de hackatón (proyecto greenfield). Actualizado 2026-10-23: UI en Django y PostgreSQL, todo dockerizado para ejecución local.
+> MVP de hackatón (proyecto greenfield). Actualizado 2026-10-23: UI en Django y PostgreSQL, todo dockerizado para ejecución local; llamadas a Gemini con el endpoint REST `generateContent`.
 
 ## Arquitectura
 
@@ -22,7 +22,11 @@ Entrada (formulario / texto) → Vista Django → Evaluador IA (Gemini) → Eval
 - **Framework web / UI**: Django 5.2 LTS con templates renderizados en servidor (formulario de pedido, bandeja, detalle con justificación, corrección manual). CSS liviano sin build (p. ej. Pico.css o Bootstrap por CDN); sin SPA.
 - **Base de datos**: PostgreSQL 17 (imagen oficial `postgres:17`), acceso vía ORM de Django con `psycopg` 3
 - **Contenedores**: Docker + Docker Compose para correr app y base de datos localmente
-- **IA**: Google Gemini vía SDK `google-genai` (≥ 1.55, Interactions API) con salida estructurada por JSON Schema generado desde Pydantic
+- **IA**: Google Gemini vía el endpoint REST `generateContent`, con salida estructurada por JSON Schema generado desde Pydantic
+  - Contrato de llamada: `POST https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent`, con los headers `Content-Type: application/json` y `X-goog-api-key: {GEMINI_API_KEY}`, y el cuerpo `{"contents": [{"parts": [{"text": ...}]}]}`. Se agregan solo `systemInstruction` y `generationConfig` (`temperature`, `responseMimeType: "application/json"`, `responseJsonSchema`)
+  - Se implementa con `client.models.generate_content` del SDK `google-genai` (≥ 1.55), que emite esa misma request. No se usa la Interactions API
+  - La API key va solo en el header `X-goog-api-key`, nunca como `?key=` en la URL
+  - La respuesta se lee de `candidates[0].content.parts[0].text`; un `finishReason` distinto de `STOP` o un `promptFeedback.blockReason` cuentan como respuesta inválida
   - Modelo por defecto: `gemini-3.8-flash` (estable; mejor razonamiento de la línea Flash)
   - Modelo rápido/económico: `gemini-3.5-flash-lite` (respaldo ante límites de cuota o latencia)
   - El modelo se elige por configuración (`GEMINI_MODEL`), nunca hardcodeado
@@ -51,7 +55,7 @@ Entrada (formulario / texto) → Vista Django → Evaluador IA (Gemini) → Eval
 - Type hints en todo el código; modelos Pydantic en los bordes del dominio (respuesta de IA, entrada al motor de reglas).
 - Formularios Django validan la entrada del usuario; las vistas convierten a modelos de dominio antes de llamar a `triage/`.
 - Toda respuesta de la IA se valida con `Modelo.model_validate_json(...)`; si falla → reintento único → respaldo por palabras clave + "Requiere revisión".
-- Gemini no garantiza restricciones de rango/longitud del schema: validar en Pydantic (p. ej. puntajes 0–3) y mantener el schema plano y pequeño (schemas muy anidados son rechazados con `400 INVALID_ARGUMENT`).
+- Gemini hace cumplir `enum`, `minimum`/`maximum` y `minItems`/`maxItems`, pero descarta en silencio las restricciones de longitud (`minLength`/`maxLength`). Igual se valida todo en Pydantic (p. ej. puntajes 0–3) y se mantiene el schema plano y pequeño (los schemas con mucha ramificación se rechazan con `400 INVALID_ARGUMENT`).
 
 ### Persistencia
 - Todo cambio de esquema mediante migraciones de Django versionadas.
@@ -60,7 +64,7 @@ Entrada (formulario / texto) → Vista Django → Evaluador IA (Gemini) → Eval
 
 ### Configuración
 - Pesos, umbrales, reglas y tipos viven en `config/*.yaml`, no hardcodeados.
-- Secretos y conexión solo por variables de entorno vía `.env` no versionado (`GEMINI_API_KEY`, `GEMINI_MODEL`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`); incluir `.env.example` sin valores reales.
+- Secretos y conexión solo por variables de entorno vía `.env` no versionado (`GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_TIMEOUT_S`, `TRIAGE_USAR_CACHE`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`); incluir `.env.example` sin valores reales.
 
 ### Calidad
 - `ruff` para lint/format.
@@ -97,7 +101,7 @@ Entrada (formulario / texto) → Vista Django → Evaluador IA (Gemini) → Eval
 - **Docker Compose local**: cualquier integrante del equipo (y el jurado) levanta todo con un solo comando.
 - **Sincrónico en el MVP**: una llamada a Gemini por pedido no justifica Celery/Redis en una hackatón.
 - **Respaldo sin IA**: la demo no puede depender al 100 % de la red/API.
-- **Gemini como proveedor, detrás de una interfaz**: el dominio depende de un protocolo `EvaluadorPedidos`; `GeminiEvaluador` es una implementación y el respaldo por palabras clave es otra. Cambiar de proveedor no toca el motor de reglas.
+- **Gemini como proveedor, detrás de una interfaz**: el dominio depende de un protocolo `EvaluadorPedidos`; `EvaluadorGemini` es una implementación y el respaldo por palabras clave es otra. Cambiar de proveedor no toca el motor de reglas.
 - **Cuota y privacidad**: el nivel gratuito de Gemini tiene límites de solicitudes por minuto y puede usar los datos para mejorar sus productos. Para la demo: cachear resultados del dataset de ejemplo y no enviar datos personales (nombres, teléfonos) en el prompt.
 
 ---

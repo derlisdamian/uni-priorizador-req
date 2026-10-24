@@ -89,7 +89,7 @@ graph LR
 | Frontend | Templates de Django + Pico.css (CDN) | Formulario, pegado de texto, bandeja, detalle y corrección | Sin SPA ni build. Textos en español |
 | Backend | Python 3.12, Django 5.2 LTS | Vistas, forms, ORM, admin y comandos | `pedidos/services.py` orquesta la persistencia |
 | Dominio | `pydantic` v2, `pyyaml` | Schemas, validación de configuración y respuesta de la IA | Sin dependencias de Django |
-| IA | `google-genai` ≥ 1.55 (Interactions API) | Interpretación estructurada | `store=False`, temperatura 0, timeout de 4 s y sin reintentos del SDK |
+| IA | Gemini REST `v1beta/models/{modelo}:generateContent` vía `google-genai` ≥ 1.55 (`models.generate_content`) | Interpretación estructurada | API key en el header `X-goog-api-key`, temperatura 0, salida JSON con schema, timeout de 4 s y sin reintentos del SDK |
 | Datos | PostgreSQL 17 + `psycopg[binary]` 3 | Pedidos, resultados y correcciones | `JSONField` para la evaluación completa |
 | Infraestructura | Docker Compose v2 (`web`, `db`), `uv` | Arranque con `docker compose up --build` | `web` migra y luego ejecuta `runserver` |
 | Calidad | `pytest`, `pytest-django`, `ruff` | Tests puros y de integración | Gemini se simula en los tests |
@@ -403,9 +403,33 @@ class EvaluadorPedidos(Protocol):
 ```
 
 **EvaluadorGemini** (`gemini.py`)
-- **Dependencia externa**: `google-genai` ≥ 1.55, `client.interactions.create(model, input, system_instruction, response_format, generation_config={"temperature": 0}, store=False)`.
+- **Contrato de llamada (normativo)**: toda llamada a Gemini usa el endpoint REST `generateContent` con esta estructura:
+
+  ```http
+  POST https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent
+  Content-Type: application/json
+  X-goog-api-key: {GEMINI_API_KEY}
+  ```
+  ```json
+  {
+    "systemInstruction": { "parts": [ { "text": "<instrucciones del prompt versionado>" } ] },
+    "contents": [
+      { "parts": [ { "text": "<pedido delimitado: EntradaEvaluacion serializada>" } ] }
+    ]
+  }
+  ```
+
+  - La estructura base `contents[].parts[].text` es la de la llamada de referencia. Solo se agregan los campos `systemInstruction` y `generationConfig`, que hacen falta para los requisitos 3.1 a 3.5.
+  - `generationConfig` lleva `temperature: 0`, `responseMimeType: "application/json"` y `responseJsonSchema: <schema de RespuestaGemini>`.
+  - `{GEMINI_MODEL}` sale de la variable de entorno (por ejemplo, `gemini-3.8-flash` o el alias `gemini-flash-latest`) y nunca está fijo en el código (requisito 3.8).
+  - La API key va **solo** en el header `X-goog-api-key`, nunca en la URL como `?key=`, para que no quede en logs de URLs ni en mensajes de error.
+  - Hay una sola llamada por intento, sin estado conversacional ni historial: `contents` tiene un único elemento.
+- **Cliente HTTP**:
+  - Se usa `client.models.generate_content(model, contents, config)` de `google-genai`, que emite exactamente esa request. Los tests verifican el cuerpo enviado (ver *Testing Strategy*).
   - El cliente se crea con `types.HttpOptions` (timeout `GEMINI_TIMEOUT_S`, 4 s por defecto) y sin reintentos automáticos.
-  - El resultado se lee de `interaction.output_text`.
+- **Lectura de la respuesta**:
+  - El JSON se toma de `candidates[0].content.parts[0].text` y se valida con `RespuestaGemini.model_validate_json(...)`.
+  - Si no hay candidatos, si `finishReason` no es `STOP` (por ejemplo `SAFETY` o `MAX_TOKENS`) o si hay `promptFeedback.blockReason`, el error es `RESPUESTA_INVALIDA`.
 - **Prompt**:
   - Se carga de `triage/prompts/evaluar_pedido.md`, con versión en su encabezado.
   - Se completa con la escala, las definiciones de los criterios, los tipos con sus señales y la instrucción de citar evidencia **literal**.
@@ -800,7 +824,13 @@ erDiagram
   - respaldo sin coincidencias, que da sin clasificación;
   - confianza 0,59, que da `CONFIANZA_BAJA`;
   - comprobar que la entrada no contiene el contacto.
-- **Adaptador Gemini**: un cliente `genai` simulado que verifica `store=False`, `response_format.schema`, la temperatura 0 y la traducción de `APIError` y del timeout.
+- **Adaptador Gemini**: un transporte HTTP simulado que verifica:
+  - la URL `v1beta/models/{GEMINI_MODEL}:generateContent` y el método POST;
+  - el header `X-goog-api-key` y la ausencia de `?key=` en la URL;
+  - un cuerpo con un único `contents[].parts[].text`, `systemInstruction` y `generationConfig` (temperatura 0, `responseMimeType` y `responseJsonSchema`);
+  - que el texto enviado no contiene el contacto;
+  - la lectura de `candidates[0].content.parts[0].text`;
+  - la traducción de `APIError`, del timeout y de `finishReason` distinto de `STOP`.
 - **Django (`tests/pedidos/`, pytest-django contra PostgreSQL)**:
   - `registrar`, que persiste incluso si el pipeline lanza una excepción;
   - `corregir`, que guarda el historial, actualiza los valores vigentes y no toca `ResultadoTriage`;
@@ -813,7 +843,9 @@ erDiagram
 - **Privacidad (requisito 12.1)**:
   - `EntradaEvaluacion` no tiene campo de contacto.
   - El texto libre se anonimiza (correos y teléfonos) antes de enviarse.
-  - Gemini se llama con `store=False`.
+  - Cada llamada a `generateContent` es independiente y no tiene historial.
+  - La API key viaja solo en el header `X-goog-api-key`.
+  - El nivel gratuito de Gemini puede usar los datos enviados para mejorar sus productos, lo que refuerza la exclusión del contacto y la anonimización.
   - Los logs no incluyen el texto del pedido.
 - **Secretos (requisito 12.2)**: viven solo en el `.env` local. `.env.example` no tiene valores reales.
 - **Sin autenticación (fuera de alcance)**:
