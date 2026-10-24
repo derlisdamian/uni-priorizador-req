@@ -48,6 +48,7 @@ El alcance corresponde al MVP de hackatón definido en el steering: quedan fuera
 5. If el resultado de la interpretación contiene un tipo fuera de la lista configurada, un puntaje fuera del rango 0–3 o datos faltantes, the Sistema de Triage shall descartar ese resultado y tratarlo como una interpretación fallida.
 6. The Sistema de Triage shall conservar el texto original del pedido sin modificaciones, independientemente de la descripción normalizada generada.
 7. The Sistema de Triage shall completar la interpretación y la priorización de un pedido en menos de 10 segundos en condiciones normales de disponibilidad del servicio de IA.
+8. The Sistema de Triage shall delegar la interpretación de los pedidos a un servicio de IA externo en la nube (Google Gemini), cuyo modelo se seleccione por configuración sin modificar el código.
 
 ### Requirement 4: Cálculo determinístico de la prioridad
 **Objective:** Como responsable de mantenimiento, quiero que la prioridad surja de una regla institucional fija aplicada a los puntajes, para que el mismo problema reciba la misma prioridad sin importar quién lo redacte.
