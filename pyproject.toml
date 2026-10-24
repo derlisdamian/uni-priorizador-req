@@ -1,0 +1,43 @@
+[project]
+name = "priorizador-pedidos"
+version = "0.1.0"
+description = "Triage de pedidos de obras y mantenimiento con prioridad P1–P4 explicable"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.2,<5.3",
+    "psycopg[binary]>=3.2",
+    "pydantic>=2.9,<3",
+    "pyyaml>=6.0",
+    "google-genai>=1.55",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "pytest-env>=1.1",
+    "ruff>=0.8",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "sitio.settings"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
+# D: solo se aplica si la variable no está definida (no pisa el .env del contenedor)
+env = ["D:DJANGO_SECRET_KEY=clave-solo-para-tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+# Solo código Python: los Markdown de .sdd/ no se reformatean
+extend-exclude = ["*/migrations/*", ".sdd", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["triage", "pedidos", "sitio"]
