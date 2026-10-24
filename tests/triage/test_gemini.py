@@ -233,12 +233,22 @@ def test_el_texto_enviado_es_la_entrada_delimitada_sin_datos_de_contacto(config,
     assert "contacto" not in texto
 
 
-@pytest.mark.parametrize(("timeout_s", "esperado"), [(None, 4.0), (2.5, 2.5)])
+@pytest.mark.parametrize(("timeout_s", "esperado"), [(None, 9.0), (2.5, 2.5)])
 def test_aplica_el_timeout_configurado(config, entrada, timeout_s, esperado):
     transporte = Transporte(respuesta_gemini(json.dumps(evaluacion_json(config))))
     opciones = {} if timeout_s is None else {"timeout_s": timeout_s}
     crear_evaluador(config, transporte, **opciones).evaluar(entrada)
     assert transporte.requests[0].extensions["timeout"]["read"] == esperado
+
+
+@pytest.mark.parametrize(("timeout_s", "esperado"), [(None, "10"), (2.5, "10"), (12.3, "13")])
+def test_el_plazo_del_servidor_respeta_el_minimo_de_gemini(config, entrada, timeout_s, esperado):
+    # Gemini rechaza con 400 INVALID_ARGUMENT un `X-Server-Timeout` menor que 10 s; el
+    # timeout del cliente sigue siendo el configurado.
+    transporte = Transporte(respuesta_gemini(json.dumps(evaluacion_json(config))))
+    opciones = {} if timeout_s is None else {"timeout_s": timeout_s}
+    crear_evaluador(config, transporte, **opciones).evaluar(entrada)
+    assert transporte.requests[0].headers["x-server-timeout"] == esperado
 
 
 # --- Lectura de la respuesta ---

@@ -47,7 +47,7 @@ El alcance corresponde al MVP de hackatón definido en el steering: quedan fuera
 4. When un pedido se interpreta, the Sistema de Triage shall registrar un nivel de confianza entre 0 y 1 para la clasificación.
 5. If el resultado de la interpretación contiene un tipo fuera de la lista configurada, un puntaje fuera del rango 0–3 o datos faltantes, the Sistema de Triage shall descartar ese resultado y tratarlo como una interpretación fallida.
 6. The Sistema de Triage shall conservar el texto original del pedido sin modificaciones, independientemente de la descripción normalizada generada.
-7. The Sistema de Triage shall completar la interpretación y la priorización de un pedido en menos de 10 segundos en condiciones normales de disponibilidad del servicio de IA.
+7. The Sistema de Triage shall completar la interpretación y la priorización de un pedido en menos de 10 segundos en condiciones normales de disponibilidad del servicio de IA, es decir, cuando la IA responde en el primer intento. Si hace falta el reintento ante una falla de la IA, se acepta que el triage supere los 10 segundos.
 8. The Sistema de Triage shall delegar la interpretación de los pedidos a un servicio de IA externo en la nube (Google Gemini), cuyo modelo se seleccione por configuración sin modificar el código.
 
 ### Requirement 4: Cálculo determinístico de la prioridad

@@ -104,7 +104,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Evaluación con Gemini
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL") or "gemini-3.8-flash"
-GEMINI_TIMEOUT_S = float(os.environ.get("GEMINI_TIMEOUT_S") or 4)
+GEMINI_TIMEOUT_S = float(os.environ.get("GEMINI_TIMEOUT_S") or 9)
 
 # Triage
 TRIAGE_USAR_CACHE = _env_bool("TRIAGE_USAR_CACHE")

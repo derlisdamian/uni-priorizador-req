@@ -92,7 +92,7 @@ def test_valores_por_defecto_de_gemini_y_triage(cargar_settings):
     settings = cargar_settings(DJANGO_SECRET_KEY="x")
     assert settings.GEMINI_API_KEY == ""
     assert settings.GEMINI_MODEL == "gemini-3.8-flash"
-    assert settings.GEMINI_TIMEOUT_S == 4.0
+    assert settings.GEMINI_TIMEOUT_S == 9.0
     assert settings.TRIAGE_USAR_CACHE is False
     assert settings.TRIAGE_CONFIG_DIR == settings.BASE_DIR / "config"
     assert settings.TRIAGE_CACHE_ARCHIVO == settings.BASE_DIR / "data/cache/evaluaciones.json"

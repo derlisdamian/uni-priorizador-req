@@ -5,6 +5,7 @@ header `X-goog-api-key`, un único contenido sin historial, `systemInstruction` 
 `generationConfig` (temperatura 0 y salida JSON con schema).
 """
 
+import math
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,7 +22,9 @@ from triage.schemas import EntradaEvaluacion, EvaluacionCriterios
 from triage.validacion import EvaluacionInvalida, validar_evaluacion
 
 ARCHIVO_PROMPT = Path(__file__).resolve().parents[1] / "prompts" / "evaluar_pedido.md"
-TIMEOUT_POR_DEFECTO_S = 4.0
+TIMEOUT_POR_DEFECTO_S = 9.0  # gemini-3.8-flash tarda 6–8 s; con reintento el peor caso ronda 18 s
+# Gemini rechaza con 400 INVALID_ARGUMENT un plazo del servidor menor que 10 s.
+PLAZO_MINIMO_SERVIDOR_S = 10
 MAX_EVIDENCIA = 3
 _VERSION = re.compile(r"\A<!--\s*version:\s*(?P<version>\S+)\s*-->\s*\n")
 
@@ -81,6 +84,10 @@ def construir_schema_respuesta(config: ConfiguracionTriage) -> dict[str, object]
     return {"type": "object", "properties": propiedades, "required": list(propiedades)}
 
 
+def _plazo_servidor(timeout_s: float) -> int:
+    return max(PLAZO_MINIMO_SERVIDOR_S, math.ceil(timeout_s))
+
+
 def _contenido_pedido(entrada: EntradaEvaluacion) -> str:
     return f"<pedido>{entrada.model_dump_json()}</pedido>"
 
@@ -124,7 +131,9 @@ class EvaluadorGemini:
             genai.Client(
                 api_key=api_key,
                 http_options=types.HttpOptions(
-                    timeout=round(timeout_s * 1000),  # milisegundos
+                    timeout=round(timeout_s * 1000),  # milisegundos, lo corta el cliente
+                    # Sin este header el SDK envía el timeout como plazo del servidor.
+                    headers={"X-Server-Timeout": str(_plazo_servidor(timeout_s))},
                     retry_options=types.HttpRetryOptions(attempts=1),  # el pipeline reintenta
                     httpx_client=http_client,
                 ),

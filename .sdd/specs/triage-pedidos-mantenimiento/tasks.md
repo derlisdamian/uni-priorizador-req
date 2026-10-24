@@ -210,7 +210,7 @@
   - Requiere 5, 4.3 y 8.1
   - _Requirements: 3.7, 11.3, 11.4_
 
-- [ ] 9. Integración final y verificación
+- [x] 9. Integración final y verificación
 - [x] 9.1 Verificar de punta a punta los flujos principales
   - Probar el recorrido completo: registrar por formulario, verlo en la bandeja con su prioridad, abrir el detalle, corregirlo y ver la marca y el historial
   - Probar el recorrido con la IA no disponible: respaldo, "Requiere revisión" y justificación con el aviso de respaldo
@@ -218,7 +218,7 @@
   - Verificar que los datos de contacto nunca llegan a la request hacia la IA
   - _Requirements: 1.4, 1.5, 6.4, 6.5, 7.5, 8.3, 12.1_
 
-- [ ] 9.2 Verificar el arranque con Docker Compose y la persistencia
+- [x] 9.2 Verificar el arranque con Docker Compose y la persistencia
   - Levantar todo con el comando único, cargar los ejemplos y comprobar que la bandeja responde
   - Reiniciar los contenedores y comprobar que los pedidos, los resultados y las correcciones se conservan
   - Comprobar con Gemini real que el triage de un pedido tarda menos de 10 segundos y que los secretos no aparecen en el repositorio

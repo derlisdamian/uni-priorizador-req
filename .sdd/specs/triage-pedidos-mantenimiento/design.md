@@ -89,7 +89,7 @@ graph LR
 | Frontend | Templates de Django + Pico.css (CDN) | Formulario, pegado de texto, bandeja, detalle y corrección | Sin SPA ni build. Textos en español |
 | Backend | Python 3.12, Django 5.2 LTS | Vistas, forms, ORM, admin y comandos | `pedidos/services.py` orquesta la persistencia |
 | Dominio | `pydantic` v2, `pyyaml` | Schemas, validación de configuración y respuesta de la IA | Sin dependencias de Django |
-| IA | Gemini REST `v1beta/models/{modelo}:generateContent` vía `google-genai` ≥ 1.55 (`models.generate_content`) | Interpretación estructurada | API key en el header `X-goog-api-key`, temperatura 0, salida JSON con schema, timeout de 4 s y sin reintentos del SDK |
+| IA | Gemini REST `v1beta/models/{modelo}:generateContent` vía `google-genai` ≥ 1.55 (`models.generate_content`) | Interpretación estructurada | API key en el header `X-goog-api-key`, temperatura 0, salida JSON con schema, timeout de 9 s (plazo del servidor de al menos 10 s) y sin reintentos del SDK |
 | Datos | PostgreSQL 17 + `psycopg[binary]` 3 | Pedidos, resultados y correcciones | `JSONField` para la evaluación completa |
 | Infraestructura | Docker Compose v2 (`web`, `db`), `uv` | Arranque con `docker compose up --build` | `web` migra y luego ejecuta `runserver` |
 | Calidad | `pytest`, `pytest-django`, `ruff` | Tests puros y de integración | Gemini se simula en los tests |
@@ -426,7 +426,8 @@ class EvaluadorPedidos(Protocol):
   - Hay una sola llamada por intento, sin estado conversacional ni historial: `contents` tiene un único elemento.
 - **Cliente HTTP**:
   - Se usa `client.models.generate_content(model, contents, config)` de `google-genai`, que emite exactamente esa request. Los tests verifican el cuerpo enviado (ver *Testing Strategy*).
-  - El cliente se crea con `types.HttpOptions` (timeout `GEMINI_TIMEOUT_S`, 4 s por defecto) y sin reintentos automáticos.
+  - El cliente se crea con `types.HttpOptions` (timeout `GEMINI_TIMEOUT_S`, 9 s por defecto) y sin reintentos automáticos.
+  - El header `X-Server-Timeout` se envía explícitamente con al menos 10 s: Gemini rechaza con `400 INVALID_ARGUMENT` un plazo del servidor menor, que el SDK derivaría del timeout del cliente.
 - **Lectura de la respuesta**:
   - El JSON se toma de `candidates[0].content.parts[0].text` y se valida con `RespuestaGemini.model_validate_json(...)`.
   - Si no hay candidatos, si `finishReason` no es `STOP` (por ejemplo `SAFETY` o `MAX_TOKENS`) o si hay `promptFeedback.blockReason`, el error es `RESPUESTA_INVALIDA`.
@@ -837,7 +838,7 @@ erDiagram
   - `consultar_bandeja`, con el orden y los filtros combinados;
   - las vistas: errores de formulario, mensaje sin resultados, marca "corregido" y textos en español;
   - la idempotencia de `cargar_ejemplos`.
-- **Rendimiento**: en `evaluar_dataset` con Gemini real (manual, antes de la demo), verificar que el p95 de `duracion_ms` sea menor a 10 s. Un test que simula el timeout verifica que el peor caso quede por debajo de 10 s.
+- **Rendimiento**: en `evaluar_dataset` con Gemini real (manual, antes de la demo), verificar que el p95 de `duracion_ms` sea menor a 10 s cuando la IA responde en el primer intento.
 
 ## Security Considerations
 - **Privacidad (requisito 12.1)**:
@@ -854,9 +855,9 @@ erDiagram
 - **Prompt injection**: el texto del pedido va como contenido delimitado en el `input`, y las instrucciones en `system_instruction`. Aun así, una respuesta manipulada no puede alterar las reglas, porque el motor decide y los valores se validan contra la configuración.
 
 ## Performance & Scalability
-- **Objetivo**: menos de 10 s por pedido (requisito 3.7).
+- **Objetivo**: menos de 10 s por pedido cuando la IA responde en el primer intento (requisito 3.7). Con Gemini real, `gemini-3.8-flash` tarda entre 6 y 8 s (medido el 2026-10-23).
 - **Presupuesto**:
-  - 2 intentos de 4 s;
+  - 1 intento de hasta 9 s en el caso normal; con el reintento, el peor caso ronda los 18 s y se acepta;
   - respaldo de menos de 50 ms;
   - motor y persistencia de menos de 100 ms.
 - **Volumen**: es bajo y propio de una demo. Los índices de la bandeja cubren el orden. No hay paginación hasta superar los 200 pedidos; si se supera, se usa el `Paginator` de Django con 50 pedidos por página.
