@@ -1,0 +1,139 @@
+# Política institucional de priorización (ver .sdd/steering/triage-criteria.md).
+# Los cambios se aplican al reiniciar: `docker compose restart web`.
+#
+# - peso: entero >= 0; la suma de todos los pesos debe ser 100.
+# - informativo: no suma al puntaje ni puede usarse en reglas (peso 0).
+# - senales_respaldo: frases que, sin IA, asignan un puntaje 0–3 al criterio.
+
+criterios:
+  - clave: riesgo_personas
+    nombre: Riesgo para las personas
+    peso: 22
+    informativo: false
+    senales_respaldo:
+      - {frase: cables expuestos, puntaje: 3}
+      - {frase: cables pelados, puntaje: 3}
+      - {frase: riesgo de caída, puntaje: 3}
+      - {frase: se puede caer, puntaje: 3}
+      - {frase: desprendimiento, puntaje: 3}
+      - {frase: olor a gas, puntaje: 3}
+      - {frase: chispas, puntaje: 3}
+      - {frase: resbaloso, puntaje: 2}
+      - {frase: peligro, puntaje: 2}
+
+  - clave: seguridad
+    nombre: Seguridad
+    peso: 14
+    informativo: false
+    senales_respaldo:
+      - {frase: salida de emergencia, puntaje: 3}
+      - {frase: alarma de incendio, puntaje: 3}
+      - {frase: matafuegos, puntaje: 2}
+      - {frase: iluminación de emergencia, puntaje: 2}
+      - {frase: cerradura, puntaje: 1}
+
+  - clave: interrupcion_servicios
+    nombre: Interrupción de servicios
+    peso: 12
+    informativo: false
+    senales_respaldo:
+      - {frase: sin luz, puntaje: 3}
+      - {frase: sin agua, puntaje: 3}
+      - {frase: corte de luz, puntaje: 3}
+      - {frase: sin internet, puntaje: 2}
+      - {frase: no funciona, puntaje: 1}
+
+  - clave: impacto_academico
+    nombre: Impacto en actividades académicas
+    peso: 12
+    informativo: false
+    senales_respaldo:
+      - {frase: examen, puntaje: 3}
+      - {frase: no se puede dar clase, puntaje: 3}
+      - {frase: clases, puntaje: 2}
+      - {frase: aula, puntaje: 1}
+
+  - clave: usuarios_afectados
+    nombre: Cantidad de usuarios afectados
+    peso: 10
+    informativo: false
+    senales_respaldo:
+      - {frase: todo el edificio, puntaje: 3}
+      - {frase: toda la facultad, puntaje: 3}
+      - {frase: todo el piso, puntaje: 2}
+      - {frase: varias aulas, puntaje: 2}
+
+  - clave: deterioro_progresivo
+    nombre: Riesgo de deterioro progresivo
+    peso: 10
+    informativo: false
+    senales_respaldo:
+      - {frase: filtración, puntaje: 2}
+      - {frase: humedad, puntaje: 2}
+      - {frase: cada vez peor, puntaje: 2}
+      - {frase: grieta, puntaje: 2}
+      - {frase: gotera, puntaje: 1}
+
+  - clave: urgencia_temporal
+    nombre: Urgencia temporal
+    peso: 10
+    informativo: false
+    senales_respaldo:
+      - {frase: urgente, puntaje: 2}
+      - {frase: hoy, puntaje: 2}
+      - {frase: mañana, puntaje: 2}
+      - {frase: lluvia, puntaje: 2}
+
+  - clave: accesibilidad
+    nombre: Accesibilidad
+    peso: 10
+    informativo: false
+    senales_respaldo:
+      - {frase: único ascensor, puntaje: 3}
+      - {frase: silla de ruedas, puntaje: 3}
+      - {frase: ascensor, puntaje: 2}
+      - {frase: rampa, puntaje: 2}
+      - {frase: baño adaptado, puntaje: 2}
+
+  - clave: costo_estimado
+    nombre: Costo estimado
+    peso: 0
+    informativo: true
+    senales_respaldo: []
+
+# Mínimo de puntaje total (0–100) para cada prioridad; P4 es el resto.
+umbrales:
+  P1: 70
+  P2: 45
+  P3: 20
+
+# Cada regla se cumple si se cumplen TODAS sus condiciones (Y); un "O" se expresa con dos reglas.
+# Las reglas solo elevan la prioridad hasta su prioridad_minima, nunca la bajan.
+reglas:
+  - id: riesgo_personas_grave
+    descripcion: Riesgo para las personas grave (puntaje 3)
+    condiciones:
+      - {criterio: riesgo_personas, operador: igual, valor: 3}
+    prioridad_minima: P1
+
+  - id: seguridad_grave
+    descripcion: Seguridad grave (puntaje 3)
+    condiciones:
+      - {criterio: seguridad, operador: igual, valor: 3}
+    prioridad_minima: P1
+
+  - id: accesibilidad_grave
+    descripcion: Accesibilidad sin alternativa (puntaje 3)
+    condiciones:
+      - {criterio: accesibilidad, operador: igual, valor: 3}
+    prioridad_minima: P2
+
+  - id: interrupcion_masiva
+    descripcion: Interrupción grave de servicios con muchos usuarios afectados
+    condiciones:
+      - {criterio: interrupcion_servicios, operador: igual, valor: 3}
+      - {criterio: usuarios_afectados, operador: mayor_o_igual, valor: 2}
+    prioridad_minima: P2
+
+# Por debajo de esta confianza (0–1) el pedido queda en "Requiere revisión".
+confianza_minima: 0.6

@@ -1,0 +1,22 @@
+# Tipos de pedido y señales típicas (ver .sdd/steering/triage-criteria.md).
+# El orden importa: resuelve los empates del evaluador de respaldo.
+
+tipos:
+  - nombre: Electricidad
+    senales: [tablero, corto, enchufe, cables, sin luz]
+  - nombre: Sanitaria
+    senales: [pérdida de agua, baño, cañería, inodoro, cloaca]
+  - nombre: Cubierta
+    senales: [techo, goteras, filtración, membrana, canaleta]
+  - nombre: Climatización
+    senales: [aire acondicionado, calefacción, caldera, ventilación]
+  - nombre: Accesibilidad
+    senales: [rampa, ascensor, baño adaptado, barandas]
+  - nombre: Mobiliario
+    senales: [sillas, bancos, pizarrón, escritorio, armario]
+  - nombre: Infraestructura
+    senales: [paredes, pisos, puertas, ventanas, grietas, revoque]
+  - nombre: TIC
+    senales: [proyector, wifi, red, computadora, cámara]
+  - nombre: Seguridad
+    senales: [matafuegos, alarma, salida de emergencia, cerradura, iluminación de emergencia]

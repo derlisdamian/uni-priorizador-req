@@ -1,7 +1,7 @@
 # Plan de Implementación
 
-- [ ] 1. Base del proyecto y entorno de ejecución
-- [ ] 1.1 Crear el esqueleto del proyecto Python y Django
+- [x] 1. Base del proyecto y entorno de ejecución
+- [x] 1.1 Crear el esqueleto del proyecto Python y Django
   - Definir las dependencias del proyecto (Django, driver de PostgreSQL, Pydantic, PyYAML, cliente de Gemini, pytest, pytest-django, ruff), gestionadas con uv
   - Crear el proyecto Django y la app de pedidos, junto al paquete de dominio de triage, que no debe depender de Django
   - Leer de variables de entorno la clave secreta, el modo debug, la conexión a PostgreSQL (servicio `db`), la API key y el modelo de Gemini, el timeout, el uso de caché y el directorio de configuración
@@ -10,7 +10,7 @@
   - Configurar pytest, separando los tests puros de dominio de los tests con base de datos, y configurar ruff
   - _Requirements: 3.8, 12.2, 12.4_
 
-- [ ] 1.2 (P) Dockerizar la aplicación y la base de datos para levantarlas con un solo comando
+- [x] 1.2 (P) Dockerizar la aplicación y la base de datos para levantarlas con un solo comando
   - Construir la imagen de la aplicación sobre Python 3.12 slim, con las dependencias instaladas por uv y el código montado para recarga en caliente
   - Definir el servicio de base de datos PostgreSQL 17 con un volumen nombrado y un healthcheck de disponibilidad
   - Hacer que la aplicación espere a que la base esté sana, aplique las migraciones y levante el servidor de desarrollo accesible desde el host
@@ -18,8 +18,8 @@
   - Se puede hacer en paralelo con 1.1 porque toca solo archivos de contenedores; para verificarlo hace falta el esqueleto de 1.1
   - _Requirements: 12.3, 12.5_
 
-- [ ] 2. Contratos de dominio y configuración de triage
-- [ ] 2.1 Definir los modelos de datos del dominio
+- [x] 2. Contratos de dominio y configuración de triage
+- [x] 2.1 Definir los modelos de datos del dominio
   - Representar los niveles de prioridad P1–P4 de modo que el orden natural coincida con la urgencia
   - Representar el canal de ingreso, el origen del resultado (IA, respaldo o sin clasificación) y los motivos de revisión
   - Modelar la entrada que se envía al evaluador, sin ningún campo de datos de contacto
@@ -28,7 +28,7 @@
   - Validar en el borde los rangos de puntajes y de confianza, y verificarlo con tests unitarios
   - _Requirements: 3.1, 3.2, 3.4, 6.6, 12.1_
 
-- [ ] 2.2 Cargar y validar la configuración institucional desde archivos YAML
+- [x] 2.2 Cargar y validar la configuración institucional desde archivos YAML
   - Crear la configuración inicial: 9 criterios con nombre legible, peso, marca informativa y señales de respaldo; umbrales P1 = 70, P2 = 45 y P3 = 20; las 4 reglas de escalamiento; confianza mínima 0.6; los 9 tipos con sus señales
   - Expresar cada regla de escalamiento como un conjunto de condiciones combinadas con Y, con una prioridad mínima resultante
   - Rechazar la configuración, enumerando todos los errores encontrados, cuando haya:
@@ -43,8 +43,8 @@
   - Cubrir con tests cada caso de configuración inválida y la carga de la configuración inicial
   - _Requirements: 4.7, 10.1, 10.3_
 
-- [ ] 3. Lógica determinística de priorización
-- [ ] 3.1 (P) Implementar el motor de reglas de puntaje y prioridad
+- [x] 3. Lógica determinística de priorización
+- [x] 3.1 (P) Implementar el motor de reglas de puntaje y prioridad
   - Calcular el puntaje total como la suma ponderada de los puntajes dividida por 3, usando aritmética entera para que los bordes de los umbrales sean exactos
   - Asignar la prioridad por umbral y aplicar las reglas de escalamiento solo para elevarla, nunca para reducirla
   - Informar las reglas aplicadas en el orden de la configuración, indicando cuál produjo el cambio
@@ -53,7 +53,7 @@
   - Requiere 2.1 y 2.2; es independiente de 3.2 y 3.3
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
-- [ ] 3.2 (P) Implementar la validación de las evaluaciones recibidas
+- [x] 3.2 (P) Implementar la validación de las evaluaciones recibidas
   - Verificar que el tipo principal y los secundarios pertenezcan a la lista configurada, sin repetir el principal
   - Verificar que estén presentes todos los criterios, sin claves desconocidas y con puntajes enteros entre 0 y 3
   - Comparar cada fragmento de evidencia con el texto enviado, normalizando mayúsculas, acentos y espacios, y descartar los que no aparecen
@@ -61,7 +61,7 @@
   - Testear el tipo fuera de la lista, el puntaje fuera de rango, la evidencia faltante y la evidencia parafraseada
   - _Requirements: 3.1, 3.2, 3.3, 3.5_
 
-- [ ] 3.3 (P) Redactar la justificación legible en español
+- [x] 3.3 (P) Redactar la justificación legible en español
   - Componer un texto con la prioridad final, el puntaje total, la prioridad que correspondía por umbral y los tipos detectados
   - Listar cada criterio con puntaje mayor o igual a 2, con su nombre legible, su puntaje y la evidencia citada
   - Cuando una regla de escalamiento cambia la prioridad, explicar la prioridad por umbral, la prioridad final y la regla responsable
