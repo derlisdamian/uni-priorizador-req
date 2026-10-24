@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Triage de pedidos{% endblock %} · Mantenimiento</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <style>
+    .prioridad { display: inline-block; padding: .1rem .5rem; border-radius: .4rem; font-weight: 700; background: var(--pico-muted-border-color); }
+    .prioridad-p1 { background: #c62828; color: #fff; }
+    .prioridad-p2 { background: #ef6c00; color: #fff; }
+    tr.requiere-revision > td { background: rgba(255, 193, 7, .18); }
+    .etiqueta-corregido { color: var(--pico-primary); font-style: italic; }
+    .texto-pedido, .justificacion { white-space: pre-line; }
+    .mensaje-error, .mensaje-warning { border-left: .3rem solid #c62828; }
+    .mensaje-success { border-left: .3rem solid #2e7d32; }
+    .errorlist { color: #c62828; margin: 0; padding-left: 1rem; }
+  </style>
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul><li><strong>Triage de mantenimiento</strong></li></ul>
+      <ul>
+        <li><a href="{% url 'pedidos:bandeja' %}">Bandeja</a></li>
+        <li><a href="{% url 'pedidos:nuevo' %}">Nuevo pedido</a></li>
+        <li><a href="{% url 'pedidos:texto' %}">Pegar texto</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    {% for mensaje in messages %}
+      <article role="alert" class="mensaje mensaje-{{ mensaje.tags }}">{{ mensaje }}</article>
+    {% endfor %}
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>

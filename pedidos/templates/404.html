@@ -1,0 +1,6 @@
+{% extends "pedidos/base.html" %}
+{% block titulo %}No encontrado{% endblock %}
+{% block contenido %}
+<h1>No se encontró la página</h1>
+<p>El pedido o la página que buscás no existe. <a href="{% url 'pedidos:bandeja' %}">Volver a la bandeja</a>.</p>
+{% endblock %}

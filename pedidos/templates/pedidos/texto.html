@@ -1,0 +1,11 @@
+{% extends "pedidos/base.html" %}
+{% block titulo %}Pegar texto{% endblock %}
+{% block contenido %}
+<h1>Pegar el texto de un correo o nota</h1>
+<p>El texto se registra tal como se pega; la dependencia y la ubicación se extraen del texto cuando están presentes.</p>
+<form method="post" action="{% url 'pedidos:texto' %}">
+  {% csrf_token %}
+  {{ formulario }}
+  <button type="submit">Registrar pedido</button>
+</form>
+{% endblock %}

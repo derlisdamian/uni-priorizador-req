@@ -155,13 +155,13 @@
   - Requiere 6.1; es independiente de 6.3 y 6.4
   - _Requirements: 7.2, 7.3_
 
-- [ ] 7. Interfaz web en español
-- [ ] 7.1 Crear la estructura base de la interfaz
+- [x] 7. Interfaz web en español
+- [x] 7.1 Crear la estructura base de la interfaz
   - Definir la plantilla base con estilos livianos por CDN, la navegación entre la bandeja, el nuevo pedido y el pegado de texto, y los mensajes de la aplicación
   - Definir las rutas con espacio de nombres y redirigir la raíz a la bandeja
   - _Requirements: 12.4_
 
-- [ ] 7.2 Implementar el formulario de pedido y el pegado de texto libre
+- [x] 7.2 Implementar el formulario de pedido y el pegado de texto libre
   - Ofrecer un formulario con la dependencia y la descripción obligatorias, y la ubicación y el contacto opcionales; rechazar el envío incompleto indicando los campos faltantes y conservando lo ingresado
   - Ofrecer el pegado de texto libre con la dependencia opcional, y rechazar el texto vacío o compuesto solo por espacios, informando el motivo
   - Al enviar, registrar y priorizar el pedido y redirigir al detalle mostrando el identificador, la prioridad, el tipo y la justificación
@@ -169,7 +169,7 @@
   - Requiere 6.3 y 7.1
   - _Requirements: 1.1, 1.3, 1.5, 2.1, 2.5_
 
-- [ ] 7.3 Implementar la bandeja de triage
+- [x] 7.3 Implementar la bandeja de triage
   - Mostrar para cada pedido el identificador, la fecha, la dependencia, la ubicación, el tipo, la prioridad, el puntaje y el estado, con el orden definido
   - Ofrecer los filtros por tipo, dependencia, prioridad y estado, conservando la selección
   - Destacar visualmente los pedidos P1 y los que están en "Requiere revisión", e indicar los valores corregidos
@@ -178,7 +178,7 @@
   - Requiere 6.5 y 7.1
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-- [ ] 7.4 Implementar el detalle del pedido con la confirmación y la corrección
+- [x] 7.4 Implementar el detalle del pedido con la confirmación y la corrección
   - Mostrar el texto original, la descripción normalizada, la dependencia, la ubicación, el canal, la fecha, los tipos y el estado
   - Mostrar los puntajes de todos los criterios con su evidencia, la confianza, el origen (IA o respaldo), los motivos de revisión y la justificación completa
   - Mostrar la recomendación original del sistema y el historial de correcciones cuando existen

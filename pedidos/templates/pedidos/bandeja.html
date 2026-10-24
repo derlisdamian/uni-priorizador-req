@@ -1,0 +1,40 @@
+{% extends "pedidos/base.html" %}
+{% block titulo %}Bandeja{% endblock %}
+{% block contenido %}
+<h1>Bandeja de triage</h1>
+<p>Pedidos sin clasificar: <strong>{{ sin_clasificar }}</strong></p>
+<form method="get" action="{% url 'pedidos:bandeja' %}">
+  <div class="grid">
+    {% for campo in formulario %}
+      <label>{{ campo.label }} {{ campo }}</label>
+    {% endfor %}
+  </div>
+  <button type="submit">Filtrar</button>
+  <a href="{% url 'pedidos:bandeja' %}">Quitar filtros</a>
+</form>
+<div class="overflow-auto">
+<table class="striped">
+  <thead>
+    <tr>
+      <th>Pedido</th><th>Recibido</th><th>Dependencia</th><th>Ubicación</th>
+      <th>Tipo</th><th>Prioridad</th><th>Puntaje</th><th>Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pedido in pedidos %}
+    <tr{% if pedido.estado == "requiere_revision" %} class="requiere-revision"{% endif %}>
+      <td><a href="{% url 'pedidos:detalle' pedido.pk %}">{{ pedido.identificador }}</a></td>
+      <td>{{ pedido.recibido_en|date:"d/m/Y H:i" }}</td>
+      <td>{{ pedido.dependencia }}</td>
+      <td>{{ pedido.ubicacion }}</td>
+      <td>{{ pedido.tipo_vigente|default:"—" }}</td>
+      <td>{% include "pedidos/_prioridad.html" with valor=pedido.prioridad_vigente %}{% if pedido.corregido %} <small class="etiqueta-corregido">corregido</small>{% endif %}</td>
+      <td>{{ pedido.puntaje_total|default_if_none:"—" }}</td>
+      <td>{% if pedido.estado == "requiere_revision" %}⚠️ {% endif %}{{ pedido.get_estado_display }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if not pedidos %}<p>No hay pedidos que cumplan los filtros.</p>{% endif %}
+{% endblock %}

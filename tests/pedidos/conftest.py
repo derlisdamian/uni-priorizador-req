@@ -76,3 +76,17 @@ def construir_servicio(config):
         return ServicioPedidos(cfg, principal, respaldo)
 
     return _construir
+
+
+@pytest.fixture
+def servicio_vistas(monkeypatch, construir_servicio):
+    """Hace que las vistas usen un servicio con evaluadores falsos (la IA responde P1)."""
+    from pedidos import views
+
+    def _usar(servicio=None):
+        servicio = servicio or construir_servicio()
+        monkeypatch.setattr(views, "obtener_servicio", lambda: servicio)
+        return servicio
+
+    _usar()
+    return _usar
