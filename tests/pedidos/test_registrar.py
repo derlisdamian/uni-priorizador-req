@@ -63,6 +63,13 @@ class TestRegistroPorFormulario:
         assert resultado.intentos_ia == 1
         assert resultado.motivos_revision == []
 
+    def test_guarda_el_codigo_de_ejemplo_solo_si_se_informa(self, construir_servicio):
+        servicio = construir_servicio()
+        assert servicio.registrar(datos()).codigo_ejemplo is None
+        pedido = servicio.registrar(datos(codigo_ejemplo="EJ-01"))
+        pedido.refresh_from_db()
+        assert pedido.codigo_ejemplo == "EJ-01"
+
     def test_no_envia_el_contacto_y_anonimiza_el_texto(self, construir_servicio, config):
         principal = EvaluadorFalso(evaluacion(config), modelo="gemini-falso")
         construir_servicio(principal=principal).registrar(datos())
@@ -253,6 +260,22 @@ class TestConstruccionDeEvaluadores:
         principal, _ = construir_evaluadores(config)
         assert isinstance(principal, EvaluadorConCache)
         assert principal.archivo == tmp_path / "evaluaciones.json"
+
+    def test_los_comandos_pueden_forzar_el_uso_del_cache(self, config, settings, tmp_path):
+        settings.TRIAGE_USAR_CACHE = False
+        settings.TRIAGE_CACHE_ARCHIVO = tmp_path / "evaluaciones.json"
+        principal, _ = construir_evaluadores(config, usar_cache=True)
+        assert isinstance(principal, EvaluadorConCache)
+
+    def test_los_comandos_pueden_refrescar_el_cache(self, config, settings, tmp_path):
+        settings.TRIAGE_CACHE_ARCHIVO = tmp_path / "evaluaciones.json"
+        principal, _ = construir_evaluadores(config, usar_cache=True, refrescar_cache=True)
+        assert principal.refrescar is True
+
+    def test_los_comandos_pueden_desactivar_el_cache(self, config, settings):
+        settings.TRIAGE_USAR_CACHE = True
+        principal, _ = construir_evaluadores(config, usar_cache=False)
+        assert isinstance(principal, EvaluadorGemini)
 
     def test_el_servicio_por_defecto_usa_la_configuracion_del_proceso(self, settings):
         settings.GEMINI_API_KEY = ""

@@ -30,6 +30,8 @@ docker compose exec web python manage.py cargar_ejemplos
 
 # Medir los aciertos de prioridad y tipo sobre el dataset etiquetado
 docker compose exec web python manage.py evaluar_dataset data/pedidos_ejemplo.json
+#   --sin-cache: consulta a la IA sin caché · --refrescar-cache: regenera el caché con Gemini
+#   (requiere GEMINI_API_KEY; luego versionar data/cache/evaluaciones.json)
 
 # Crear un usuario para el admin
 docker compose exec web python manage.py createsuperuser

@@ -187,22 +187,22 @@
   - Requiere 6.4 y 7.1
   - _Requirements: 8.1, 8.2, 8.3, 9.1, 9.2, 9.3, 9.6_
 
-- [ ] 8. Dataset de ejemplo y medición de aciertos
-- [ ] 8.1 (P) Construir el dataset etiquetado de ejemplo
+- [x] 8. Dataset de ejemplo y medición de aciertos
+- [x] 8.1 (P) Construir el dataset etiquetado de ejemplo
   - Redactar entre 15 y 20 pedidos realistas, con la prioridad y el tipo principal esperados según etiquetado manual
   - Cubrir todos los niveles P1–P4 (al menos 3 por nivel) y al menos 7 de los 9 tipos
   - Incluir casos de cada regla de escalamiento, un texto ambiguo de baja confianza y un texto libre sin dependencia
   - Validar la estructura del dataset con un test
   - _Requirements: 11.1_
 
-- [ ] 8.2 Implementar la carga de los ejemplos en la bandeja
+- [x] 8.2 Implementar la carga de los ejemplos en la bandeja
   - Registrar y priorizar cada pedido del dataset mediante el mismo caso de uso de registro, usando el caché de evaluaciones
   - Omitir los ejemplos ya cargados para que el comando sea idempotente
   - Testear la idempotencia y que los ejemplos aparezcan en la bandeja
   - Requiere 6.3, 4.3 y 8.1
   - _Requirements: 11.2, 11.4_
 
-- [ ] 8.3 Implementar la evaluación de aciertos sobre el dataset
+- [x] 8.3 Implementar la evaluación de aciertos sobre el dataset
   - Ejecutar el triage de cada ejemplo sin persistirlo y comparar la prioridad final y el tipo principal con los valores esperados
   - Informar el porcentaje de coincidencia de prioridad y de tipo, el tiempo por pedido y su promedio, y el detalle de los casos no coincidentes con su origen
   - Permitir ejecutar sin caché o regenerarlo consultando a Gemini, y dejar generado el caché del dataset para la demo

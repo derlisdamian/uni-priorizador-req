@@ -152,3 +152,23 @@ def test_envolver_con_cache_respeta_la_configuracion(archivo):
     envuelto = envolver_con_cache(interno, usar_cache=True, archivo=archivo)
     assert isinstance(envuelto, EvaluadorConCache)
     assert envuelto.nombre == "cache+gemini:gemini-a"
+
+
+def test_refrescar_consulta_siempre_y_reemplaza_la_evaluacion_guardada(archivo):
+    EvaluadorConCache(EvaluadorFalso(), archivo).evaluar(entrada())
+    EvaluadorConCache(EvaluadorFalso(), archivo).evaluar(entrada("Otro pedido"))
+    nuevo = EvaluadorFalso(resultado=evaluacion("TIC"))
+
+    resultado = EvaluadorConCache(nuevo, archivo, refrescar=True).evaluar(entrada())
+
+    assert nuevo.llamadas == 1 and resultado.tipo_principal == "TIC"
+    guardado = json.loads(archivo.read_text(encoding="utf-8"))
+    assert len(guardado) == 2  # conserva las demás entradas
+    assert EvaluadorConCache(EvaluadorFalso(), archivo).evaluar(entrada()).tipo_principal == "TIC"
+
+
+def test_envolver_con_cache_puede_refrescarlo(archivo):
+    envuelto = envolver_con_cache(
+        EvaluadorFalso(), usar_cache=True, archivo=archivo, refrescar=True
+    )
+    assert envuelto.refrescar is True

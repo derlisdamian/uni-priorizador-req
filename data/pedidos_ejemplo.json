@@ -1,0 +1,182 @@
+[
+  {
+    "codigo_ejemplo": "EJ-01",
+    "canal": "formulario",
+    "texto": "Hay cables pelados colgando del cielorraso en el pasillo del 2º piso, justo al lado de la puerta del aula 21. Los estudiantes pasan rozándolos todo el día.",
+    "dependencia": "Facultad de Ingeniería",
+    "ubicacion": "Pabellón A, pasillo del 2º piso",
+    "prioridad_esperada": "P1",
+    "tipo_esperado": "Electricidad",
+    "caso": "regla:riesgo_personas_grave"
+  },
+  {
+    "codigo_ejemplo": "EJ-02",
+    "canal": "formulario",
+    "texto": "La salida de emergencia del auditorio principal está cerrada con cadena y candado porque la barra antipánico se rompió. El viernes hay acto de colación con unas 300 personas.",
+    "dependencia": "Secretaría de Extensión",
+    "ubicacion": "Auditorio principal",
+    "prioridad_esperada": "P1",
+    "tipo_esperado": "Seguridad",
+    "caso": "regla:seguridad_grave"
+  },
+  {
+    "codigo_ejemplo": "EJ-03",
+    "canal": "formulario",
+    "texto": "Desde esta mañana estamos sin agua en todo el edificio. Los baños de los tres pisos están inutilizables y el buffet tuvo que cerrar.",
+    "dependencia": "Facultad de Ciencias Económicas",
+    "ubicacion": "Edificio central",
+    "prioridad_esperada": "P2",
+    "tipo_esperado": "Sanitaria",
+    "caso": "regla:interrupcion_masiva"
+  },
+  {
+    "codigo_ejemplo": "EJ-04",
+    "canal": "formulario",
+    "texto": "El único ascensor del edificio no funciona desde ayer. Un docente que usa silla de ruedas no puede llegar a su oficina del 3er piso y no hay otra forma de subir.",
+    "dependencia": "Rectorado",
+    "ubicacion": "Edificio de Rectorado, ascensor",
+    "prioridad_esperada": "P2",
+    "tipo_esperado": "Accesibilidad",
+    "caso": "regla:accesibilidad_grave"
+  },
+  {
+    "codigo_ejemplo": "EJ-05",
+    "canal": "formulario",
+    "texto": "Hay una filtración activa en el techo de la sala de lectura: cae agua cerca del tablero eléctrico y sobre la estantería del archivo histórico. Para mañana anuncian lluvia y va a empeorar.",
+    "dependencia": "Biblioteca Central",
+    "ubicacion": "Sala de lectura, planta alta",
+    "prioridad_esperada": "P2",
+    "tipo_esperado": "Cubierta",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-06",
+    "canal": "formulario",
+    "texto": "La calefacción del ala norte no anda desde el lunes. Son cuatro aulas con clases de mañana y tarde y los alumnos están cursando con camperas.",
+    "dependencia": "Facultad de Humanidades",
+    "ubicacion": "Ala norte, aulas 10 a 13",
+    "prioridad_esperada": "P3",
+    "tipo_esperado": "Climatización",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-07",
+    "canal": "formulario",
+    "texto": "El proyector del aula magna no enciende. Mañana a las 9 hay defensas de tesis y necesitamos proyectar las presentaciones.",
+    "dependencia": "Facultad de Ciencias Exactas",
+    "ubicacion": "Aula magna",
+    "prioridad_esperada": "P3",
+    "tipo_esperado": "TIC",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-08",
+    "canal": "formulario",
+    "texto": "En la pared del pasillo del Pabellón C hay una grieta que se agrandó en las últimas semanas y se está cayendo el revoque en pedazos chicos.",
+    "dependencia": "Facultad de Arquitectura",
+    "ubicacion": "Pabellón C, pasillo de planta baja",
+    "prioridad_esperada": "P3",
+    "tipo_esperado": "Infraestructura",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-09",
+    "canal": "formulario",
+    "texto": "Necesitamos 10 sillas nuevas para la sala de reuniones del departamento; las actuales están muy gastadas.",
+    "dependencia": "Departamento de Matemática",
+    "ubicacion": "Sala de reuniones",
+    "prioridad_esperada": "P4",
+    "tipo_esperado": "Mobiliario",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-10",
+    "canal": "formulario",
+    "texto": "El pizarrón del aula 12 tiene manchas que no salen con el borrador. Se puede seguir usando, pero se ve mal.",
+    "dependencia": "Facultad de Derecho",
+    "ubicacion": "Aula 12",
+    "prioridad_esperada": "P4",
+    "tipo_esperado": "Mobiliario",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-11",
+    "canal": "formulario",
+    "texto": "Solicitamos pintar las paredes del hall de entrada, que están descascaradas, antes del inicio del próximo cuatrimestre.",
+    "dependencia": "Facultad de Derecho",
+    "ubicacion": "Hall de entrada",
+    "prioridad_esperada": "P4",
+    "tipo_esperado": "Infraestructura",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-12",
+    "canal": "formulario",
+    "texto": "Corte de luz en todo el 3er piso del Pabellón B desde las 8. Hay seis aulas con clases y los laboratorios quedaron sin energía.",
+    "dependencia": "Facultad de Ciencias Químicas",
+    "ubicacion": "Pabellón B, 3er piso",
+    "prioridad_esperada": "P2",
+    "tipo_esperado": "Electricidad",
+    "caso": "regla:interrupcion_masiva"
+  },
+  {
+    "codigo_ejemplo": "EJ-13",
+    "canal": "formulario",
+    "texto": "Los matafuegos del laboratorio de química tienen la carga vencida desde el mes pasado. Pedimos que los recarguen o los reemplacen.",
+    "dependencia": "Facultad de Ciencias Químicas",
+    "ubicacion": "Laboratorio de química general",
+    "prioridad_esperada": "P3",
+    "tipo_esperado": "Seguridad",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-14",
+    "canal": "texto_libre",
+    "texto": "Hola, les escribo porque el wifi de la biblioteca no anda desde el lunes y estamos en semana de exámenes. Los alumnos no pueden consultar el catálogo ni estudiar con los materiales en línea. Saludos.",
+    "dependencia": null,
+    "ubicacion": null,
+    "prioridad_esperada": "P3",
+    "tipo_esperado": "TIC",
+    "caso": "texto_libre_sin_dependencia"
+  },
+  {
+    "codigo_ejemplo": "EJ-15",
+    "canal": "texto_libre",
+    "texto": "Buenas, hay un problema en el aula de siempre, ¿pueden venir a ver?",
+    "dependencia": null,
+    "ubicacion": null,
+    "prioridad_esperada": "P4",
+    "tipo_esperado": "Infraestructura",
+    "caso": "ambiguo"
+  },
+  {
+    "codigo_ejemplo": "EJ-16",
+    "canal": "formulario",
+    "texto": "El inodoro del baño de mujeres de planta baja tiene una pérdida de agua: corre todo el día y ya se ve humedad en el piso.",
+    "dependencia": "Facultad de Psicología",
+    "ubicacion": "Baño de mujeres, planta baja",
+    "prioridad_esperada": "P4",
+    "tipo_esperado": "Sanitaria",
+    "caso": "umbral"
+  },
+  {
+    "codigo_ejemplo": "EJ-17",
+    "canal": "formulario",
+    "texto": "Se desprendió parte del cielorraso del aula 8 y quedaron placas colgando sobre los bancos. Hay riesgo de caída sobre los alumnos; por ahora cerramos el aula.",
+    "dependencia": "Facultad de Ciencias Sociales",
+    "ubicacion": "Aula 8",
+    "prioridad_esperada": "P1",
+    "tipo_esperado": "Infraestructura",
+    "caso": "regla:riesgo_personas_grave"
+  },
+  {
+    "codigo_ejemplo": "EJ-18",
+    "canal": "texto_libre",
+    "texto": "Urgente: salen chispas del tablero eléctrico del laboratorio de computación y hay olor a quemado. Cortamos el disyuntor general del laboratorio.",
+    "dependencia": "Facultad de Informática",
+    "ubicacion": null,
+    "prioridad_esperada": "P1",
+    "tipo_esperado": "Electricidad",
+    "caso": "regla:riesgo_personas_grave"
+  }
+]

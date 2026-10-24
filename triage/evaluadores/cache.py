@@ -25,11 +25,13 @@ class EvaluadorConCache:
 
     La clave combina el modelo, la versión del prompt y la entrada enviada (el texto y los
     datos informados), así que cambiar el modelo o el prompt invalida las entradas previas.
+    Con `refrescar` siempre consulta al evaluador interno y reemplaza lo guardado.
     """
 
-    def __init__(self, interno: EvaluadorCacheable, archivo: Path):
+    def __init__(self, interno: EvaluadorCacheable, archivo: Path, *, refrescar: bool = False):
         self.interno = interno
         self.archivo = Path(archivo)
+        self.refrescar = refrescar
         self._entradas: dict[str, dict] = (
             json.loads(self.archivo.read_text(encoding="utf-8")) if self.archivo.exists() else {}
         )
@@ -53,7 +55,7 @@ class EvaluadorConCache:
 
     def evaluar(self, entrada: EntradaEvaluacion) -> EvaluacionCriterios:
         clave = self._clave(entrada)
-        if clave in self._entradas:
+        if clave in self._entradas and not self.refrescar:
             return EvaluacionCriterios.model_validate(self._entradas[clave])
         evaluacion = self.interno.evaluar(entrada)
         entradas = self._entradas | {clave: evaluacion.model_dump(mode="json")}
@@ -78,7 +80,9 @@ class EvaluadorConCache:
 
 
 def envolver_con_cache(
-    evaluador: EvaluadorCacheable, *, usar_cache: bool, archivo: Path
+    evaluador: EvaluadorCacheable, *, usar_cache: bool, archivo: Path, refrescar: bool = False
 ) -> EvaluadorPedidos:
     """Aplica el caché solo si está activado por configuración (`TRIAGE_USAR_CACHE`)."""
-    return EvaluadorConCache(evaluador, archivo) if usar_cache else evaluador
+    if not usar_cache:
+        return evaluador
+    return EvaluadorConCache(evaluador, archivo, refrescar=refrescar)

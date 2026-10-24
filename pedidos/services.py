@@ -44,6 +44,7 @@ class DatosPedido:
     dependencia: str | None
     ubicacion: str | None
     contacto: str | None  # se persiste, nunca se envía a la IA
+    codigo_ejemplo: str | None = None  # solo para los pedidos del dataset de ejemplo
 
 
 class ErrorOperacion(Exception):
@@ -56,8 +57,14 @@ class ErrorOperacion(Exception):
 
 def construir_evaluadores(
     config: ConfiguracionTriage,
+    *,
+    usar_cache: bool | None = None,
+    refrescar_cache: bool = False,
 ) -> tuple[EvaluadorPedidos, EvaluadorPedidos]:
-    """Gemini (con caché opcional) como evaluador principal y palabras clave como respaldo."""
+    """Gemini (con caché opcional) como evaluador principal y palabras clave como respaldo.
+
+    Sin `usar_cache` decide `TRIAGE_USAR_CACHE`; los comandos del dataset lo fuerzan.
+    """
     gemini = EvaluadorGemini(
         config,
         api_key=settings.GEMINI_API_KEY,
@@ -65,7 +72,10 @@ def construir_evaluadores(
         timeout_s=settings.GEMINI_TIMEOUT_S,
     )
     principal = envolver_con_cache(
-        gemini, usar_cache=settings.TRIAGE_USAR_CACHE, archivo=settings.TRIAGE_CACHE_ARCHIVO
+        gemini,
+        usar_cache=settings.TRIAGE_USAR_CACHE if usar_cache is None else usar_cache,
+        archivo=settings.TRIAGE_CACHE_ARCHIVO,
+        refrescar=refrescar_cache,
     )
     return principal, EvaluadorPalabrasClave(config)
 
@@ -139,6 +149,7 @@ class ServicioPedidos:
             contacto=_limpio(datos.contacto),
             estado=EstadoPedido.REQUIERE_REVISION,
             motivos_revision=[MotivoRevision.SIN_CLASIFICACION],
+            codigo_ejemplo=datos.codigo_ejemplo,
         )
         try:
             entrada = construir_entrada(
