@@ -39,5 +39,9 @@ extend-exclude = ["*/migrations/*", ".sdd", "*.md"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "DJ"]
 
+[tool.ruff.lint.per-file-ignores]
+# El modelo físico del diseño usa NULL para "sin valor" (p. ej. pedidos sin clasificación).
+"pedidos/models.py" = ["DJ001"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["triage", "pedidos", "sitio"]

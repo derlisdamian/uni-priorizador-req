@@ -106,8 +106,8 @@
   - Testear con evaluadores simulados: éxito, éxito tras el reintento, respaldo, falta de configuración, sin clasificación, confianza 0,59 y que la entrada no contenga el contacto
   - _Requirements: 2.4, 3.5, 3.7, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 12.1_
 
-- [ ] 6. Persistencia y casos de uso de la aplicación
-- [ ] 6.1 (P) Crear los modelos de persistencia y sus migraciones
+- [x] 6. Persistencia y casos de uso de la aplicación
+- [x] 6.1 (P) Crear los modelos de persistencia y sus migraciones
   - Persistir el pedido con:
     - el texto original inmutable;
     - el canal, la dependencia, la ubicación y el contacto;
@@ -120,7 +120,7 @@
   - Requiere 1.1 y 2.1; es independiente de 3, 4 y 5
   - _Requirements: 3.6, 9.4, 9.5, 10.4, 12.5_
 
-- [ ] 6.2 Cargar la configuración al iniciar la aplicación y exponer su validación
+- [x] 6.2 Cargar la configuración al iniciar la aplicación y exponer su validación
   - Cargar y validar la configuración una sola vez al arrancar y compartirla en todo el proceso
   - Impedir el arranque con un error de configuración que enumere los problemas
   - Ofrecer un comando que valide la configuración e informe la versión o los errores, con un código de salida distinto de cero si falla
@@ -128,7 +128,7 @@
   - Requiere 2.2 y 6.1
   - _Requirements: 10.2, 10.3_
 
-- [ ] 6.3 Implementar el registro de pedidos con priorización automática
+- [x] 6.3 Implementar el registro de pedidos con priorización automática
   - Construir los evaluadores a partir de la configuración del entorno (Gemini, con caché opcional, y respaldo), de forma inyectable para los tests
   - Guardar el pedido antes de evaluarlo, en estado "Requiere revisión", para que quede registrado aunque todo falle
   - Ejecutar el triage con el texto anonimizado y sin datos de contacto
@@ -138,7 +138,7 @@
   - Requiere 5, 6.1 y 6.2
   - _Requirements: 1.2, 1.4, 2.2, 2.4, 3.6, 3.7, 6.5, 10.4, 12.1_
 
-- [ ] 6.4 Implementar la confirmación y la corrección manual
+- [x] 6.4 Implementar la confirmación y la corrección manual
   - Confirmar un pedido cambiando su estado a "Validado" sin modificar la prioridad ni el tipo, y rechazar la confirmación de pedidos sin clasificación
   - Registrar las correcciones con fecha, responsable, valor anterior, valor nuevo y motivo, bloqueando el pedido durante la transacción
   - Actualizar la prioridad y el tipo vigentes, marcar el pedido como corregido y validado, y conservar intacta la recomendación original
@@ -147,7 +147,7 @@
   - Requiere 6.3
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
-- [ ] 6.5 (P) Implementar la consulta filtrada y ordenada de la bandeja
+- [x] 6.5 (P) Implementar la consulta filtrada y ordenada de la bandeja
   - Filtrar por tipo, dependencia, prioridad y estado sobre los valores vigentes, combinando los filtros con Y
   - Ordenar por prioridad vigente (los pedidos sin prioridad al final), luego por puntaje total descendente y luego por fecha de recepción ascendente
   - Proveer las opciones de cada filtro desde la configuración y desde los valores registrados
