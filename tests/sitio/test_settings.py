@@ -95,6 +95,7 @@ def test_valores_por_defecto_de_gemini_y_triage(cargar_settings):
     assert settings.GEMINI_TIMEOUT_S == 4.0
     assert settings.TRIAGE_USAR_CACHE is False
     assert settings.TRIAGE_CONFIG_DIR == settings.BASE_DIR / "config"
+    assert settings.TRIAGE_CACHE_ARCHIVO == settings.BASE_DIR / "data/cache/evaluaciones.json"
 
 
 def test_gemini_y_triage_se_leen_del_entorno(cargar_settings, tmp_path):

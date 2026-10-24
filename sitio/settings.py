@@ -109,3 +109,4 @@ GEMINI_TIMEOUT_S = float(os.environ.get("GEMINI_TIMEOUT_S") or 4)
 # Triage
 TRIAGE_USAR_CACHE = _env_bool("TRIAGE_USAR_CACHE")
 TRIAGE_CONFIG_DIR = Path(os.environ.get("TRIAGE_CONFIG_DIR") or BASE_DIR / "config")
+TRIAGE_CACHE_ARCHIVO = BASE_DIR / "data" / "cache" / "evaluaciones.json"  # versionado

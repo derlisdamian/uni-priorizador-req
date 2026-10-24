@@ -69,8 +69,8 @@
   - Testear los casos con escalamiento, sin escalamiento, de respaldo y sin clasificación
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 4. Evaluadores de pedidos
-- [ ] 4.1 (P) Implementar el evaluador de respaldo por palabras clave
+- [x] 4. Evaluadores de pedidos
+- [x] 4.1 (P) Implementar el evaluador de respaldo por palabras clave
   - Detectar el tipo principal por la cantidad de señales encontradas en el texto normalizado, y tomar como secundarios los demás tipos con coincidencias
   - Resolver los empates por el orden de la configuración, marcando conflicto entre tipos
   - Puntuar los criterios con las frases de respaldo configuradas, usando la frase encontrada como evidencia y 0 para los criterios sin señales
@@ -78,7 +78,7 @@
   - Testear la detección, los empates, los puntajes por señal y la ausencia de coincidencias
   - _Requirements: 6.2, 6.4_
 
-- [ ] 4.2 (P) Implementar el evaluador con Gemini según el contrato REST generateContent
+- [x] 4.2 (P) Implementar el evaluador con Gemini según el contrato REST generateContent
   - Crear el prompt versionado como archivo de texto, con la escala, los criterios, los tipos y sus señales, y la instrucción de citar evidencia literal y de extraer la dependencia y la ubicación del texto libre
   - Generar el schema de respuesta plano a partir de la configuración: tipos enumerados, puntajes 0–3, como máximo 3 fragmentos de evidencia y confianza 0–1
   - Llamar al endpoint `generateContent` con el modelo tomado de la configuración del entorno, la API key solo en el header, un único contenido sin historial, las instrucciones de sistema, temperatura 0 y salida JSON con schema
@@ -89,7 +89,7 @@
   - Requiere 3.2
   - _Requirements: 2.3, 3.1, 3.2, 3.3, 3.4, 3.5, 3.7, 3.8, 12.1_
 
-- [ ] 4.3 (P) Implementar el caché de evaluaciones
+- [x] 4.3 (P) Implementar el caché de evaluaciones
   - Envolver a otro evaluador y reutilizar las evaluaciones guardadas, identificadas por el texto, el modelo y la versión del prompt
   - Persistir el caché en un archivo versionable en el repositorio, con escritura atómica
   - Activarlo o desactivarlo por configuración del entorno, manteniendo el origen "IA" cuando el resultado proviene del caché
